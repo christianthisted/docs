@@ -1,0 +1,151 @@
+---
+title: "Create a lead"
+description: "Create a new lead in a channel."
+---
+
+import ApiAuth from "/_snippets/api-auth.mdx";
+
+## Authentication
+
+<ApiAuth />
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"create_lead"`.
+</ParamField>
+
+<ParamField body="channel_id" type="uuid" required>
+  The channel to create the lead in. Your company must have access to this channel.
+</ParamField>
+
+<ParamField body="email" type="string">
+  Contact email address.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  First name of the contact.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  Last name of the contact.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Phone number.
+</ParamField>
+
+<ParamField body="company_name" type="string">
+  Company name of the lead.
+</ParamField>
+
+<ParamField body="source" type="string">
+  How the lead was sourced (e.g. `"Website"`, `"Referral"`).
+</ParamField>
+
+<ParamField body="employee" type="string">
+  Employee associated with the lead.
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Free-text notes about the lead.
+</ParamField>
+
+<ParamField body="business_id" type="string">
+  An external identifier from your own system (e.g. a CRM record ID).
+</ParamField>
+
+<ParamField body="properties" type="array">
+  Custom property values to set on the lead. Each item requires a `property_definitions_id` (from `get_channels`) and a `value`.
+
+  ```json
+  [
+    {
+      "property_definitions_id": "11111111-2222-3333-4444-555555555555",
+      "value": "50000"
+    }
+  ]
+  ```
+</ParamField>
+
+## Response
+
+Returns the created lead with its full details, including any property values.
+
+The lead is automatically assigned the first lead status defined on the channel (typically `"New lead"`).
+
+## Side effects
+
+- **Reward triggers**: If the channel has active reward triggers for `new_lead`, reward events are created automatically.
+- **Webhooks**: If the channel has a `webhook_new_lead` URL configured, a POST request is sent with the lead data.
+- **Notifications**: The channel owner's team receives an in-app notification.
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{
+    "action": "create_lead",
+    "channel_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "email": "jane@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "phone": "+1-555-0199",
+    "company_name": "Smith Consulting",
+    "source": "Website",
+    "notes": "Interested in enterprise plan",
+    "properties": [
+      {
+        "property_definitions_id": "11111111-2222-3333-4444-555555555555",
+        "value": "50000"
+      }
+    ]
+  }'
+```
+
+### Response
+
+```json
+{
+  "lead": {
+    "id": "99887766-5544-3322-1100-aabbccddeeff",
+    "created_at": "2025-04-01T14:22:00.000Z",
+    "email": "jane@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "phone": "+1-555-0199",
+    "company_name": "Smith Consulting",
+    "source": "Website",
+    "employee": null,
+    "status": "New lead",
+    "lead_status_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "notes": "Interested in enterprise plan",
+    "business_id": null,
+    "channels_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "property_values": [
+      {
+        "id": "77665544-3322-1100-aabb-ccddeeff0011",
+        "value": "50000",
+        "property_definitions_id": "11111111-2222-3333-4444-555555555555",
+        "property_definitions": {
+          "id": "11111111-2222-3333-4444-555555555555",
+          "name": "Deal size",
+          "type": "number"
+        }
+      }
+    ]
+  }
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `400` | `"channel_id required"` | The `channel_id` field is missing. |
+| `401` | `"Invalid API key"` | Missing or invalid `X-Api-Key` header. |
+| `403` | `"Channel not accessible"` | Your company does not have access to this channel. |

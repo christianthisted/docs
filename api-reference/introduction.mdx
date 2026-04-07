@@ -1,33 +1,67 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API overview"
+description: "How the Keen API works — action-based requests, authentication, and error handling."
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+import ApiAuth from "/_snippets/api-auth.mdx";
+import BaseUrl from "/_snippets/base-url.mdx";
 
-## Welcome
+## Action-based design
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+The Keen API is **not** a traditional REST API with separate URLs per resource. Instead, every request is a `POST` to a single URL. The `action` field in the JSON body determines the operation.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+<BaseUrl />
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+<ApiAuth />
+
+The `lead_external` action is the only exception — it does not require an API key. Instead, it relies on a channel-level setting that enables public lead submission.
+
+## Request format
+
+Every request must be `POST` with a `Content-Type: application/json` header. The body must include an `action` field and any additional fields required by that action.
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{"action": "get_channels"}'
+```
+
+## Available actions
+
+| Action | Purpose |
+|--------|---------|
+| [`get_channels`](/api-reference/get-channels) | List channels accessible to your company |
+| [`get_leads`](/api-reference/get-leads) | List leads for a channel |
+| [`create_lead`](/api-reference/create-lead) | Create a new lead in a channel |
+| [`update_status`](/api-reference/update-status) | Update a lead's status by name |
+| [`update_status_id`](/api-reference/update-status-id) | Update a lead's status by ID |
+| [`create_purchase`](/api-reference/create-purchase) | Record a purchase against a lead |
+| [`create_purchase_custom`](/api-reference/create-purchase-custom) | Record a purchase with a custom product name |
+| [`lead_external`](/api-reference/lead-external) | Create a lead without authentication |
+
+## Channel access
+
+Your API key is scoped to a single company. You can only interact with channels where your company is the creator, partner, referring company, or receiving company.
+
+If you attempt to access a channel your company is not part of, the API returns a `403` error.
+
+## Error responses
+
+All errors return JSON with an `error` field:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "error": "Channel not accessible"
+}
 ```
+
+| Status code | Meaning |
+|-------------|---------|
+| `400` | Bad request — missing or invalid fields |
+| `401` | Invalid API key |
+| `403` | Your company does not have access to the requested resource |
+| `404` | Resource not found (e.g. status name does not exist on the channel) |
+| `500` | Internal server error |

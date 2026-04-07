@@ -1,0 +1,118 @@
+---
+title: "Get leads"
+description: "List all leads in a channel, including their custom property values."
+---
+
+import ApiAuth from "/_snippets/api-auth.mdx";
+
+## Authentication
+
+<ApiAuth />
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"get_leads"`.
+</ParamField>
+
+<ParamField body="channel_id" type="uuid" required>
+  The channel to retrieve leads from. Your company must have access to this channel.
+</ParamField>
+
+## Response
+
+Returns a `leads` array ordered by creation date (newest first). Each lead includes its custom property values with the associated property definition.
+
+<ResponseField name="leads" type="array">
+  <Expandable title="Lead object">
+    <ResponseField name="id" type="uuid">Lead ID.</ResponseField>
+    <ResponseField name="created_at" type="timestamp">When the lead was created.</ResponseField>
+    <ResponseField name="email" type="string">Contact email.</ResponseField>
+    <ResponseField name="first_name" type="string">First name.</ResponseField>
+    <ResponseField name="last_name" type="string">Last name.</ResponseField>
+    <ResponseField name="phone" type="string">Phone number.</ResponseField>
+    <ResponseField name="company_name" type="string">Company name of the lead.</ResponseField>
+    <ResponseField name="source" type="string">Lead source.</ResponseField>
+    <ResponseField name="employee" type="string">Employee associated with the lead.</ResponseField>
+    <ResponseField name="status" type="string">Current status name.</ResponseField>
+    <ResponseField name="lead_status_id" type="uuid">Current status ID.</ResponseField>
+    <ResponseField name="notes" type="string">Free-text notes.</ResponseField>
+    <ResponseField name="business_id" type="string">External business identifier.</ResponseField>
+    <ResponseField name="channels_id" type="uuid">Channel this lead belongs to.</ResponseField>
+    <ResponseField name="property_values" type="array">
+      Custom property values set on this lead.
+      <Expandable title="Property value object">
+        <ResponseField name="id" type="uuid">Property value ID.</ResponseField>
+        <ResponseField name="value" type="string">The stored value.</ResponseField>
+        <ResponseField name="property_definitions_id" type="uuid">ID of the property definition.</ResponseField>
+        <ResponseField name="property_definitions" type="object">
+          The property definition this value belongs to.
+          <Expandable title="Property definition">
+            <ResponseField name="id" type="uuid">Property definition ID.</ResponseField>
+            <ResponseField name="name" type="string">Field name.</ResponseField>
+            <ResponseField name="type" type="string">Field type.</ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{
+    "action": "get_leads",
+    "channel_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }'
+```
+
+### Response
+
+```json
+{
+  "leads": [
+    {
+      "id": "99887766-5544-3322-1100-aabbccddeeff",
+      "created_at": "2025-04-01T14:22:00.000Z",
+      "email": "jane@example.com",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "phone": "+1-555-0199",
+      "company_name": "Smith Consulting",
+      "source": "Website",
+      "employee": null,
+      "status": "Qualified",
+      "lead_status_id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+      "notes": "Interested in enterprise plan",
+      "business_id": null,
+      "channels_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "property_values": [
+        {
+          "id": "77665544-3322-1100-aabb-ccddeeff0011",
+          "value": "50000",
+          "property_definitions_id": "11111111-2222-3333-4444-555555555555",
+          "property_definitions": {
+            "id": "11111111-2222-3333-4444-555555555555",
+            "name": "Deal size",
+            "type": "number"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `400` | `"channel_id required"` | The `channel_id` field is missing. |
+| `401` | `"Invalid API key"` | Missing or invalid `X-Api-Key` header. |
+| `403` | `"Channel not accessible"` | Your company does not have access to this channel. |

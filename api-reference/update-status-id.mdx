@@ -1,0 +1,79 @@
+---
+title: "Update status by ID"
+description: "Update a lead's status using the status ID instead of the name."
+---
+
+import ApiAuth from "/_snippets/api-auth.mdx";
+
+## Authentication
+
+<ApiAuth />
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"update_status_id"`.
+</ParamField>
+
+<ParamField body="lead_id" type="uuid" required>
+  The lead to update. Your company must have access to the channel this lead belongs to.
+</ParamField>
+
+<ParamField body="status_id" type="uuid" required>
+  The target lead status ID. Use `get_channels` to retrieve status IDs for a channel.
+</ParamField>
+
+<ParamField body="old_status_id" type="uuid">
+  The lead's current status ID. Optional. Passed through to workflow triggers for conditional automation.
+</ParamField>
+
+This action is functionally identical to [`update_status`](/api-reference/update-status), but accepts a status UUID instead of a name string. Use this when you have stored status IDs from a previous `get_channels` call and want to avoid string matching.
+
+## Response
+
+Returns the updated lead object.
+
+## Side effects
+
+Same as [`update_status`](/api-reference/update-status): status event logging, reward trigger processing, webhook delivery, and owner notification.
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{
+    "action": "update_status_id",
+    "lead_id": "99887766-5544-3322-1100-aabbccddeeff",
+    "status_id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff"
+  }'
+```
+
+### Response
+
+```json
+{
+  "lead": {
+    "id": "99887766-5544-3322-1100-aabbccddeeff",
+    "created_at": "2025-04-01T14:22:00.000Z",
+    "email": "jane@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "status": "New lead",
+    "lead_status_id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+    "channels_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `400` | `"lead_id and status_id required"` | One or both required fields are missing. |
+| `401` | `"Invalid API key"` | Missing or invalid `X-Api-Key` header. |
+| `403` | `"Lead not accessible"` | Your company does not have access to this lead's channel. |
+| `404` | `"Status ID not found"` | No lead status exists with this ID. |

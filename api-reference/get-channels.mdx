@@ -1,0 +1,117 @@
+---
+title: "Get channels"
+description: "List all channels accessible to your company."
+---
+
+import ApiAuth from "/_snippets/api-auth.mdx";
+
+## Authentication
+
+<ApiAuth />
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"get_channels"`.
+</ParamField>
+
+No other fields are required. The API uses your API key to determine your company and returns all channels where your company is the creator, partner, referring company, or receiving company.
+
+## Response
+
+Returns a `channels` array. Each channel includes its metadata, property definitions, and lead statuses.
+
+<ResponseField name="channels" type="array">
+  <Expandable title="Channel object">
+    <ResponseField name="id" type="uuid">Channel ID.</ResponseField>
+    <ResponseField name="title" type="string">Channel name.</ResponseField>
+    <ResponseField name="created_at" type="timestamp">When the channel was created.</ResponseField>
+    <ResponseField name="referring_id" type="uuid">Company ID of the referring side.</ResponseField>
+    <ResponseField name="receiving_id" type="uuid">Company ID of the receiving side.</ResponseField>
+    <ResponseField name="creator" type="uuid">Company ID of the channel creator.</ResponseField>
+    <ResponseField name="partner_companies_id" type="uuid">Company ID of the partner.</ResponseField>
+    <ResponseField name="currency" type="string">Currency code for the channel (e.g. `"USD"`, `"EUR"`).</ResponseField>
+    <ResponseField name="no_auth_api" type="boolean">Whether the public `lead_external` action is enabled.</ResponseField>
+    <ResponseField name="property_definitions" type="array">
+      Custom field schemas defined on this channel.
+      <Expandable title="Property definition object">
+        <ResponseField name="id" type="uuid">Property definition ID.</ResponseField>
+        <ResponseField name="name" type="string">Field name.</ResponseField>
+        <ResponseField name="type" type="string">Field type (e.g. `"text"`, `"number"`, `"select"`).</ResponseField>
+        <ResponseField name="order" type="integer">Display order.</ResponseField>
+        <ResponseField name="visible" type="boolean">Whether the field is visible in the UI.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="lead_status" type="array">
+      Lead statuses configured for this channel.
+      <Expandable title="Lead status object">
+        <ResponseField name="id" type="uuid">Status ID (use with `update_status_id`).</ResponseField>
+        <ResponseField name="status" type="string">Status name (use with `update_status`).</ResponseField>
+        <ResponseField name="order" type="integer">Display order.</ResponseField>
+        <ResponseField name="visible" type="boolean">Whether the status is visible in the UI.</ResponseField>
+        <ResponseField name="color" type="string">Status color.</ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{"action": "get_channels"}'
+```
+
+### Response
+
+```json
+{
+  "channels": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "title": "Acme Corp Partnership",
+      "created_at": "2025-03-15T10:30:00.000Z",
+      "referring_id": "f1e2d3c4-b5a6-7890-abcd-ef1234567890",
+      "receiving_id": "d4c3b2a1-6f5e-0987-dcba-0987654321fe",
+      "creator": "d4c3b2a1-6f5e-0987-dcba-0987654321fe",
+      "currency": "USD",
+      "no_auth_api": false,
+      "property_definitions": [
+        {
+          "id": "11111111-2222-3333-4444-555555555555",
+          "name": "Deal size",
+          "type": "number",
+          "order": 1,
+          "visible": true
+        }
+      ],
+      "lead_status": [
+        {
+          "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          "status": "New lead",
+          "order": 1,
+          "visible": true,
+          "color": "#3B82F6"
+        },
+        {
+          "id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+          "status": "Qualified",
+          "order": 2,
+          "visible": true,
+          "color": "#F59E0B"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `401` | `"Invalid API key"` | Missing or invalid `X-Api-Key` header. |

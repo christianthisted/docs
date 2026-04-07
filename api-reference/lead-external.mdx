@@ -1,0 +1,123 @@
+---
+title: "Create a lead (external)"
+description: "Create a lead without authentication, using a channel's public API."
+---
+
+## Authentication
+
+This action does **not** require an API key. Instead, the target channel must have its public API enabled (`no_auth_api` set to `true`). You can check this via [`get_channels`](/api-reference/get-channels).
+
+<Warning>
+  Because this action is unauthenticated, treat the channel ID as a secret if you do not want unauthorized submissions.
+</Warning>
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"lead_external"`.
+</ParamField>
+
+<ParamField body="channel_id" type="uuid" required>
+  The channel to create the lead in. Accepts either the channel's primary ID or its public `uuid`. The channel must have its public API enabled.
+</ParamField>
+
+<ParamField body="email" type="string">
+  Contact email address.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  First name of the contact.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  Last name of the contact.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Phone number.
+</ParamField>
+
+<ParamField body="company_name" type="string">
+  Company name of the lead.
+</ParamField>
+
+<ParamField body="source" type="string">
+  How the lead was sourced.
+</ParamField>
+
+<ParamField body="employee" type="string">
+  Employee associated with the lead.
+</ParamField>
+
+<ParamField body="notes" type="string">
+  Free-text notes about the lead.
+</ParamField>
+
+<ParamField body="business_id" type="string">
+  An external identifier from your own system.
+</ParamField>
+
+<ParamField body="properties" type="array">
+  Custom property values to set on the lead. Each item requires a `property_definitions_id` and a `value`.
+</ParamField>
+
+## Response
+
+Returns the created lead object. The lead is automatically assigned the first lead status defined on the channel.
+
+## Side effects
+
+- **Reward triggers**: If the channel has active reward triggers for `new_lead`, reward events are created automatically.
+
+<Note>
+  Unlike the authenticated `create_lead` action, `lead_external` does not trigger webhooks or in-app notifications.
+</Note>
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "lead_external",
+    "channel_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "email": "alex@example.com",
+    "first_name": "Alex",
+    "last_name": "Johnson",
+    "company_name": "Johnson & Co",
+    "source": "Partner website form"
+  }'
+```
+
+### Response
+
+```json
+{
+  "lead": {
+    "id": "aabbccdd-eeff-0011-2233-445566778899",
+    "created_at": "2025-04-02T09:15:00.000Z",
+    "email": "alex@example.com",
+    "first_name": "Alex",
+    "last_name": "Johnson",
+    "phone": null,
+    "company_name": "Johnson & Co",
+    "source": "Partner website form",
+    "employee": null,
+    "status": "New lead",
+    "lead_status_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "notes": null,
+    "business_id": null,
+    "channels_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `400` | `"channel_id required"` | The `channel_id` field is missing. |
+| `403` | `"Public API not enabled for this channel"` | The channel exists but `no_auth_api` is `false`. |
+| `404` | `"Channel not found"` | No channel matches the provided ID or UUID. |

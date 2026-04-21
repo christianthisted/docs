@@ -1,0 +1,121 @@
+---
+title: "Get a lead by legacy ID"
+description: "Look up a lead by its legacy integer ID from the original Xano system."
+---
+
+import ApiAuth from "/_snippets/api-auth.mdx";
+
+Some external CRMs still reference leads by the original numeric ID from the legacy Xano system rather than the current Supabase UUID. Use this action to look up a lead by that integer and retrieve the full lead object. The returned `lead.id` is the UUID you should use for all subsequent actions such as [`update_status`](/api-reference/update-status), [`update_status_id`](/api-reference/update-status-id), and [`create_purchase`](/api-reference/create-purchase).
+
+## Authentication
+
+<ApiAuth />
+
+## Request
+
+<ParamField body="action" type="string" required>
+  Must be `"get_lead_by_legacy_id"`.
+</ParamField>
+
+<ParamField body="legacy_id" type="number" required>
+  The original integer ID from the legacy system.
+</ParamField>
+
+## Response
+
+Returns the full lead object, including nested `property_values` with their `property_definitions` — the same shape as leads returned by [`get_leads`](/api-reference/get-leads).
+
+<ResponseField name="lead" type="object">
+  <Expandable title="Lead object">
+    <ResponseField name="id" type="uuid">Lead ID (UUID). Use this for all subsequent API calls.</ResponseField>
+    <ResponseField name="legacy_id" type="number">The original integer ID from the legacy system.</ResponseField>
+    <ResponseField name="created_at" type="timestamp">When the lead was created.</ResponseField>
+    <ResponseField name="email" type="string">Contact email.</ResponseField>
+    <ResponseField name="first_name" type="string">First name.</ResponseField>
+    <ResponseField name="last_name" type="string">Last name.</ResponseField>
+    <ResponseField name="phone" type="string">Phone number.</ResponseField>
+    <ResponseField name="company_name" type="string">Company name of the lead.</ResponseField>
+    <ResponseField name="source" type="string">Lead source.</ResponseField>
+    <ResponseField name="employee" type="string">Employee associated with the lead.</ResponseField>
+    <ResponseField name="status" type="string">Current status name.</ResponseField>
+    <ResponseField name="lead_status_id" type="uuid">Current status ID.</ResponseField>
+    <ResponseField name="notes" type="string">Free-text notes.</ResponseField>
+    <ResponseField name="business_id" type="string">External business identifier.</ResponseField>
+    <ResponseField name="channels_id" type="uuid">Channel this lead belongs to.</ResponseField>
+    <ResponseField name="property_values" type="array">
+      Custom property values set on this lead.
+      <Expandable title="Property value object">
+        <ResponseField name="id" type="uuid">Property value ID.</ResponseField>
+        <ResponseField name="value" type="string">The stored value.</ResponseField>
+        <ResponseField name="property_definitions_id" type="uuid">ID of the property definition.</ResponseField>
+        <ResponseField name="property_definitions" type="object">
+          The property definition this value belongs to.
+          <Expandable title="Property definition">
+            <ResponseField name="id" type="uuid">Property definition ID.</ResponseField>
+            <ResponseField name="name" type="string">Field name.</ResponseField>
+            <ResponseField name="type" type="string">Field type.</ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+### Request
+
+```bash
+curl -X POST https://data.keenpartner.com/functions/v1/keen-api \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_API_KEY" \
+  -d '{
+    "action": "get_lead_by_legacy_id",
+    "legacy_id": 12345
+  }'
+```
+
+### Response
+
+```json
+{
+  "lead": {
+    "id": "99887766-5544-3322-1100-aabbccddeeff",
+    "legacy_id": 12345,
+    "created_at": "2025-04-01T14:22:00.000Z",
+    "email": "jane@example.com",
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "phone": "+1-555-0199",
+    "company_name": "Smith Consulting",
+    "source": "Website",
+    "employee": null,
+    "status": "Qualified",
+    "lead_status_id": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+    "notes": "Interested in enterprise plan",
+    "business_id": null,
+    "channels_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "property_values": [
+      {
+        "id": "77665544-3322-1100-aabb-ccddeeff0011",
+        "value": "50000",
+        "property_definitions_id": "11111111-2222-3333-4444-555555555555",
+        "property_definitions": {
+          "id": "11111111-2222-3333-4444-555555555555",
+          "name": "Deal size",
+          "type": "number"
+        }
+      }
+    ]
+  }
+}
+```
+
+## Errors
+
+| Status | Error | Cause |
+|--------|-------|-------|
+| `400` | `"legacy_id required"` | The `legacy_id` field is missing or not a valid number. |
+| `401` | `"Invalid API key"` | Missing or invalid `X-Api-Key` header. |
+| `403` | `"Lead not accessible"` | The lead belongs to a channel your company does not have access to. |
+| `404` | `"Lead not found"` | No lead exists with the given `legacy_id`. |

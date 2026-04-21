@@ -68,6 +68,7 @@ The Keen API is a single HTTP endpoint that accepts JSON POST requests. Every re
 | Action | Purpose |
 |--------|---------|
 | `get_leads` | List leads for a channel |
+| `get_lead_by_legacy_id` | Look up a single lead by its legacy integer ID |
 | `create_lead` | Create a new lead in a channel |
 | `update_status` | Update a lead's status by name |
 | `update_status_id` | Update a lead's status by ID |

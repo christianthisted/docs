@@ -41,6 +41,7 @@
             "group": "Leads",
             "pages": [
               "api-reference/get-leads",
+              "api-reference/get-lead-by-legacy-id",
               "api-reference/create-lead",
               "api-reference/update-status",
               "api-reference/update-status-id",

@@ -59,7 +59,7 @@ Use these terms consistently. Do **not** invent synonyms.
 
 The Keen API is a single HTTP endpoint that accepts JSON POST requests. Every request includes an `action` field that determines the operation. This is not a RESTful resource-per-URL design — document it as an **action-based API**.
 
-**Base URL:** `{KEEN_API_URL}/functions/v1/openapi-operations`
+**Base URL:** `{KEEN_API_URL}/functions/v1/keen-api`
 
 **Authentication:** All actions (except `lead_external`) require the `X-Api-Key` header.
 
@@ -118,7 +118,7 @@ Bad:
 
 ### In scope
 
-- All actions available through the `openapi-operations` function.
+- All actions available through the `keen-api` function.
 - Authentication with API keys (`X-Api-Key` header).
 - Channel access rules (your company must be a creator, partner, referring, or receiving company on the channel).
 - Lead lifecycle: creating leads, updating statuses, recording purchases.

@@ -15,7 +15,7 @@ This guide walks you through authenticating with the Keen API, listing your chan
 Start by retrieving the channels your company has access to. This gives you the channel IDs, lead statuses, and custom property definitions you need for subsequent requests.
 
 ```bash
-curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+curl -X POST https://data.keenpartner.com/functions/v1/keen-api \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_API_KEY" \
   -d '{"action": "get_channels"}'
@@ -34,7 +34,7 @@ Pick a channel ID from the response to use in the next step.
 Use the channel ID from the previous step to create a lead:
 
 ```bash
-curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+curl -X POST https://data.keenpartner.com/functions/v1/keen-api \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_API_KEY" \
   -d '{
@@ -55,7 +55,7 @@ The response returns the full lead object, including the auto-assigned `lead_sta
 Move the lead to a new status. Use the `lead_status` values from the `get_channels` response to find the right status name:
 
 ```bash
-curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+curl -X POST https://data.keenpartner.com/functions/v1/keen-api \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_API_KEY" \
   -d '{
@@ -70,7 +70,7 @@ curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-opera
 Confirm the lead was created and its status was updated:
 
 ```bash
-curl -X POST https://amwezouylooonljdehou.supabase.co/functions/v1/openapi-operations \
+curl -X POST https://data.keenpartner.com/functions/v1/keen-api \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_API_KEY" \
   -d '{

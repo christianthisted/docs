@@ -72,8 +72,7 @@ The Keen API is a single HTTP endpoint that accepts JSON POST requests. Every re
 | `update_status` | Update a lead's status by name |
 | `update_status_id` | Update a lead's status by ID |
 | `get_channels` | List channels accessible to your company |
-| `create_purchase` | Record a purchase against a lead (with product ID) |
-| `create_purchase_custom` | Record a purchase with a custom product name and optional reward trigger IDs |
+| `create_purchase` | Record a purchase against a lead, with optional custom product fields and reward-trigger filtering |
 | `lead_external` | Create a lead without authentication (requires the channel's public API to be enabled) |
 
 ## Writing Style

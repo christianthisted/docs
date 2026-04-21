@@ -50,8 +50,7 @@
           {
             "group": "Purchases",
             "pages": [
-              "api-reference/create-purchase",
-              "api-reference/create-purchase-custom"
+              "api-reference/create-purchase"
             ]
           }
         ]
